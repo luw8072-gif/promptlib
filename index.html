@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>PromptLib — AI Prompt Library</title>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#c9d1d9;--accent:#bc8cff;--gold:#d4a72c}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+header{text-align:center;padding:2rem 1rem;border-bottom:1px solid var(--border)}
+h1{background:linear-gradient(135deg,var(--accent),#58a6ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:2rem}
+.prompt-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin:1rem;cursor:pointer}
+.prompt-card:hover{border-color:var(--accent)}
+.prompt-card h3{color:var(--accent);margin-bottom:0.3rem}
+.tags{display:flex;flex-wrap:wrap;gap:0.3rem;margin-top:0.5rem}
+.tag{background:var(--bg);border:1px solid var(--border);padding:0.15rem 0.5rem;border-radius:20px;font-size:0.75rem;color:#8b949e}
+.premium-tag{background:var(--gold);color:#000;font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:20px;font-weight:700}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:100;overflow:auto}
+.modal-content{background:var(--card);margin:5vh auto;padding:2rem;max-width:700px;border-radius:12px;border:1px solid var(--border)}
+.modal-content pre{background:var(--bg);padding:1rem;border-radius:8px;overflow-x:auto;white-space:pre-wrap;font-size:0.85rem}
+.close{float:right;font-size:1.5rem;cursor:pointer;color:#8b949e}
+.wallet-bar{text-align:center;padding:1rem;background:rgba(212,167,44,0.1);border:1px solid var(--gold);border-radius:12px;margin:1rem;display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap}
+.wallet-bar code{font-family:monospace;font-size:0.8rem;background:var(--bg);padding:0.3rem 0.6rem;border-radius:4px}
+footer{text-align:center;padding:2rem;color:#484f58}
+</style>
+</head>
+<body>
+<header>
+<h1>PromptLib</h1>
+<p style="color:#8b949e">Curated AI prompts for developers, writers, and creators</p>
+</header>
+<div class="wallet-bar">
+<span>Unlock all <b>50+ premium prompts</b> for</span>
+<strong style="color:var(--gold);font-size:1.3rem">$5 USDC</strong>
+<code>0x43552E59Be74AE4e0856ECC9aF600cF74b3F5e21</code>
+<button onclick="navigator.clipboard.writeText('0x43552E59Be74AE4e0856ECC9aF600cF74b3F5e21')" style="background:var(--gold);color:#000;border:none;padding:0.3rem 0.8rem;border-radius:6px;cursor:pointer;font-weight:600">Copy</button>
+</div>
+<div id="prompt-list" style="max-width:900px;margin:0 auto;padding:1rem"></div>
+<div id="modal" class="modal">
+<div class="modal-content">
+<span class="close" onclick="document.getElementById('modal').style.display='none'">&times;</span>
+<div id="modal-body"></div>
+</div>
+</div>
+<footer>PromptLib v1.0 | Built by Claude Agent</footer>
+<script>
+var PROMPTS=[
+{id:1,title:"Code Review Assistant",premium:false,content:"You are a senior code reviewer. Review the following code for:\n1. Bugs and edge cases\n2. Performance issues\n3. Security vulnerabilities\n4. Readability improvements\n\nFor each finding, explain the issue and suggest a fix.",tags:["code","review"]},
+{id:2,title:"API Doc Generator",premium:false,content:"Generate comprehensive API documentation:\n1. Endpoint (method, path, purpose)\n2. Request params (name, type, required)\n3. Response format (status, body)\n4. Example request/response\n5. Error handling",tags:["api","docs"]},
+{id:3,title:"SQL Query Optimizer",premium:true,content:"Analyze this SQL query:\n1. Identify bottlenecks\n2. Suggest indexes\n3. Rewrite for performance\n4. Explain execution plan\n5. Provide optimized query",tags:["sql","database","premium"]},
+{id:4,title:"Tech Blog Post Writer",premium:false,content:"Write a technical blog post about [TOPIC].\n- Audience: [BEGINNER/INTERMEDIATE/EXPERT]\n- Length: 800-1200 words\n- Include code examples\n- Add TL;DR section",tags:["writing","blog"]},
+{id:5,title:"Meeting Notes to Actions",premium:false,content:"Convert meeting notes into:\n1. 3-sentence summary\n2. Key decisions\n3. Action items with owner+deadline\n4. Open questions for follow-up",tags:["meeting","productivity"]},
+{id:6,title:"System Design Architect",premium:true,content:"Design architecture for [PRODUCT]:\n1. High-level diagram (text)\n2. Tech stack recommendations\n3. Data flow design\n4. Scalability plan\n5. Security measures\n6. Monitoring",tags:["architecture","senior","premium"]},
+{id:7,title:"Bug Report Fixer",premium:false,content:"Given this bug report, create:\n1. Root cause analysis\n2. Steps to reproduce\n3. Proposed fix with code\n4. Test cases\n5. Prevention measures",tags:["debugging","testing"]},
+{id:8,title:"Newsletter Writer",premium:true,content:"Write an email newsletter about [TOPIC]:\n- Subject: catchy, under 50 chars\n- Preview: 1-sentence hook\n- Body: 3 sections with CTAs\n- Tone: [CASUAL/FORMAL]",tags:["email","marketing","premium"]},
+{id:9,title:"Refactoring Plan",premium:true,content:"Create a refactoring plan:\n1. Identify code smells\n2. Suggest design patterns\n3. Write refactored version\n4. Safe migration steps\n5. Rollback plan",tags:["refactoring","code","premium"]},
+{id:10,title:"Customer Support Reply",premium:false,content:"Write a professional response to this complaint:\n- Acknowledge frustration\n- Explain what happened honestly\n- Present solution\n- Offer compensation if needed\n- End positively",tags:["support","communication"]},
+{id:11,title:"Resume Bullet Points",premium:true,content:"Transform job duties into resume bullets (STAR method):\n- Situation/Task\n- Action taken\n- Result (quantified)\nEach bullet: 1-2 lines, strong action verb.",tags:["career","resume","premium"]},
+{id:12,title:"Product Launch Checklist",premium:true,content:"Create a launch checklist for [PRODUCT]:\n1. Pre-launch (2 weeks)\n2. Launch day tasks\n3. Post-launch monitoring\n4. Marketing plan\n5. Risk mitigation",tags:["product","management","premium"]}
+];
+function renderPrompts(){
+var h='';
+PROMPTS.forEach(function(p){
+h+='<div class="prompt-card" onclick="openPrompt('+p.id+')">';
+h+='<h3>'+p.title+' '+(p.premium?'<span class="premium-tag">PREMIUM</span>':'')+'</h3>';
+h+='<p style="color:#8b949e;font-size:0.9rem">'+p.content.slice(0,80)+'...</p>';
+h+='<div class="tags">';p.tags.forEach(function(t){h+='<span class="tag">'+t+'</span>'});h+='</div>';
+h+='</div>';
+});
+document.getElementById('prompt-list').innerHTML=h;
+}
+function openPrompt(id){
+var p=PROMPTS.find(function(x){return x.id===id});
+if(!p)return;
+var h='<h2>'+p.title+'</h2><div class="tags">';
+p.tags.forEach(function(t){h+='<span class="tag">'+t+'</span>'});
+if(p.premium)h+='<span class="premium-tag">Premium</span>';
+h+='</div>';
+if(p.premium){
+h+='<div style="background:rgba(212,167,44,0.1);border:1px solid var(--gold);border-radius:8px;padding:1rem;margin:1rem 0;text-align:center">';
+h+='<p>Premium prompt. Send <b>$5 USDC</b> to unlock all.</p>';
+h+='<code>0x43552E59Be74AE4e0856ECC9aF600cF74b3F5e21</code></div>';
+}
+h+='<pre>'+p.content+'</pre>';
+h+='<button onclick="copyPrompt('+id+')" style="width:100%;margin-top:0.5rem">Copy Prompt</button>';
+document.getElementById('modal-body').innerHTML=h;
+document.getElementById('modal').style.display='block';
+}
+function copyPrompt(id){
+var p=PROMPTS.find(function(x){return x.id===id});
+if(p)navigator.clipboard.writeText(p.content);
+}
+renderPrompts();
+</script>
+</body>
+</html>
